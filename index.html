@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MnemAI | Industrial Memory Layer</title>
+  <style>
+    :root {
+      --bg-base: #0a0c10;
+      --bg-surface: #11141a;
+      --bg-surface-elevated: #1a1e27;
+      --border-subtle: #222733;
+      --border-strong: #31384a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-orange: #ff5a00;
+      --accent-orange-hover: #e04f00;
+      --accent-cyan: #00d2ff;
+      --accent-cyan-hover: #00b8e6;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: var(--font-sans); 
+      background-color: var(--bg-base); 
+      color: var(--text-main); 
+      line-height: 1.6; 
+      -webkit-font-smoothing: antialiased; 
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    button { font-family: inherit; }
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+    
+    /* Scroll Progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; background: var(--accent-cyan);
+      width: 0%; z-index: 1000; transition: width 0.1s ease-out;
+    }
+
+    /* Header */
+    header { 
+      position: sticky; top: 0; z-index: 100; 
+      background: rgba(10, 12, 16, 0.85); 
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); 
+      border-bottom: 1px solid var(--border-subtle); 
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .logo { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+    .logo-icon { width: 24px; height: 24px; }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-link { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    .nav-link:hover, .nav-link.active { color: var(--text-main); }
+    
+    .btn { 
+      display: inline-flex; align-items: center; justify-content: center; 
+      padding: 12px 24px; font-size: 0.9rem; font-weight: 600; 
+      border-radius: 4px; transition: all 0.2s; cursor: pointer; border: none; 
+    }
+    .btn-primary { background: var(--accent-orange); color: #fff; }
+    .btn-primary:hover { background: var(--accent-orange-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255, 90, 0, 0.2); }
+    .btn-secondary { background: transparent; color: var(--text-main); border: 1px solid var(--border-strong); }
+    .btn-secondary:hover { border-color: var(--text-muted); background: var(--bg-surface-elevated); transform: translateY(-1px); }
+    
+    /* Typography */
+    h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
+    h1 { font-size: clamp(3rem, 5vw, 4.5rem); margin-bottom: 24px; }
+    h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 24px; }
+    h3 { font-size: 1.5rem; margin-bottom: 16px; }
+    p { margin-bottom: 16px; }
+    
+    .text-muted { color: var(--text-muted); }
+    .text-lg { font-size: 1.125rem; line-height: 1.7; }
+    .mono { font-family: var(--font-mono); }
+    .text-center { text-align: center; }
+    
+    .section-tag { 
+      color: var(--accent-cyan); font-family: var(--font-mono); font-size: 0.8rem; 
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; display: block; 
+    }
+    
+    /* Layout */
+    section { padding: 120px 0; position: relative; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    
+    .card { 
+      background: var(--bg-surface); border: 1px solid var(--border-subtle); 
+      border-radius: 8px; padding: 40px; position: relative; overflow: hidden;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s; 
+    }
+    
+    /* Photo Backgrounds */
+    .bg-photo { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+    .bg-photo img { 
+      width: 100%; height: 100%; object-fit: cover; 
+      opacity: 0.25; mix-blend-mode: luminosity; 
+      filter: grayscale(100%) contrast(1.2); 
+    }
+    .bg-photo::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(10,12,16,0.5), var(--bg-base) 95%);
+    }
+    .bg-photo.gradient-radial::after {
+      background: radial-gradient(circle at center, rgba(10,12,16,0.3) 0%, var(--bg-base) 100%);
+    }
+
+    .photo-card { padding: 0; border: 1px solid var(--border-strong); border-radius: 8px; overflow: hidden; position: relative; }
+    .photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.7; transition: opacity 0.3s; mix-blend-mode: luminosity; filter: contrast(1.2); }
+    .photo-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-base), transparent); }
+
+    /* Animations */
+    .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal.in-view { opacity: 1; transform: translateY(0); }
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+    .delay-3 { transition-delay: 0.3s; }
+
+    /* Interactive Comparison */
+    .compare-container {
+      background: var(--bg-surface-elevated); border: 1px solid var(--border-strong);
+      border-radius: 8px; overflow: hidden; position: relative;
+    }
+    .compare-header {
+      display: flex; background: var(--bg-surface); border-bottom: 1px solid var(--border-strong);
+    }
+    .compare-tab {
+      flex: 1; padding: 16px; text-align: center; font-size: 0.9rem; font-weight: 600;
+      color: var(--text-muted); cursor: pointer; transition: all 0.2s; background: transparent; border: none; border-bottom: 2px solid transparent;
+    }
+    .compare-tab.active { color: var(--accent-orange); border-bottom-color: var(--accent-orange); background: rgba(255, 90, 0, 0.05); }
+    .compare-content { padding: 32px; display: none; min-height: 280px; }
+    .compare-content.active { display: block; animation: fadeIn 0.4s ease; }
+    
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 90, 0, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(255, 90, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 90, 0, 0); } }
+    @keyframes pulse-cyan { 0% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(0, 210, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0); } }
+
+    /* 4-Step Interactive Loop */
+    .loop-nav { display: flex; justify-content: space-between; position: relative; margin-bottom: 48px; }
+    .loop-nav::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: var(--border-strong); z-index: 0; }
+    .loop-nav-progress { position: absolute; top: 50%; left: 0; height: 2px; background: var(--accent-cyan); z-index: 0; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1); width: 0%; }
+    .loop-step { 
+      position: relative; z-index: 1; background: var(--bg-base); border: 2px solid var(--border-strong); 
+      color: var(--text-muted); width: 48px; height: 48px; border-radius: 50%; 
+      display: flex; align-items: center; justify-content: center; font-weight: bold; 
+      font-family: var(--font-mono); cursor: pointer; transition: all 0.3s;
+    }
+    .loop-step.active { border-color: var(--accent-cyan); color: var(--accent-cyan); box-shadow: 0 0 20px rgba(0, 210, 255, 0.2); }
+    .loop-step-label { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); font-size: 0.85rem; font-weight: 600; white-space: nowrap; transition: color 0.3s; }
+    .loop-step.active .loop-step-label { color: var(--text-main); }
+    .loop-panel { display: none; }
+    .loop-panel.active { display: block; animation: fadeIn 0.4s ease; }
+    
+    /* Stats */
+    .stat-number { font-size: 3.5rem; font-weight: 700; color: var(--text-main); line-height: 1; margin-bottom: 8px; }
+    .stat-label { color: var(--text-muted); font-size: 0.95rem; }
+
+    footer { border-top: 1px solid var(--border-subtle); padding: 64px 0 32px; background: var(--bg-surface); position: relative; z-index: 1; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-col h4 { font-size: 0.9rem; color: var(--text-main); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .footer-links li { margin-bottom: 12px; }
+    .footer-links a { color: var(--text-muted); font-size: 0.9rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent-cyan); }
+    .footer-bottom { border-top: 1px solid var(--border-subtle); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.85rem; }
+    
+    @media (max-width: 900px) {
+      .grid-2, .grid-3, .grid-4, .footer-grid { grid-template-columns: 1fr; gap: 40px; }
+      .nav-links { display: none; }
+      section { padding: 80px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="scroll-progress"></div>
+
+  <header>
+    <div class="container nav-inner">
+      <a href="index.html" class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h18"/><path d="M4 16a8 6 0 0 1 16 0"/><path d="M9 16v-3a3 3 0 0 1 6 0v3"/><path d="M12 5v2"/></svg>
+        MnemAI
+      </a>
+      <nav class="nav-links">
+        <a href="how-it-works.html" class="nav-link">How it Works</a>
+        <a href="pricing.html" class="nav-link">Pricing</a>
+        <a href="#contact" class="nav-link">Contact</a>
+        <a href="#contact" class="btn btn-primary">Start Free Trial</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero text-center" style="min-height: 90vh; display: flex; align-items: center; border-bottom: 1px solid var(--border-subtle);">
+      <div class="bg-photo gradient-radial">
+        <img src="assets/photos/hero-technician-tablet.jpg" alt="Industrial technician using a tablet in a factory">
+      </div>
+      <div class="container reveal">
+        <span class="section-tag" style="color: var(--accent-orange);">Enterprise Pilot Program 2026</span>
+        <h1 style="max-width: 1000px; margin-inline: auto;">The failure knowledge that used to walk out the door now stays.</h1>
+        <p class="text-lg text-muted mb-8" style="max-width: 700px; margin-inline: auto; margin-bottom: 40px;">
+          MnemAI captures a veteran technician's diagnostic intuition at the point of repair and transforms it into a searchable, federated memory layer for your entire plant network.
+        </p>
+        <div style="display: flex; gap: 16px; justify-content: center;">
+          <a href="#contact" class="btn btn-primary">Start Free Trial</a>
+          <a href="how-it-works.html" class="btn btn-secondary">Explore the Architecture</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE PROBLEM -->
+    <section id="problem">
+      <div class="container">
+        <div class="grid-2">
+          <div class="reveal">
+            <span class="section-tag">The Financial Reality</span>
+            <h2>The Industrial Brain Drain</h2>
+            <p class="text-lg text-muted" style="margin-bottom: 24px;">
+              A veteran technician retirement wave is hitting simultaneously across the US, Europe, and Asia. When they leave, decades of tacit diagnostic intuition — the exact sound of a failing bearing, the quirky vibration of a misaligned pump — leaves with them.
+            </p>
+            <p style="margin-bottom: 24px;">
+              Existing CMMS tools (MaintainX, UpKeep, Fiix) are excellent for scheduling, but they throw away the diagnostic reasoning of <em>why</em> a fix worked once a ticket closes.
+            </p>
+            <div style="padding-left: 20px; border-left: 2px solid var(--accent-orange); margin-top: 32px;">
+              <p class="mono" style="color: var(--text-main); font-size: 1.1rem;">A 10% improvement in technician retention saves ~1.5 salaries per plant annually.</p>
+              <p class="text-muted" style="font-size: 0.9rem;">The cost of lost knowledge compounding across a network is catastrophic to uptime.</p>
+            </div>
+          </div>
+          
+          <div class="reveal delay-1">
+            <div class="compare-container">
+              <div class="compare-header">
+                <button class="compare-tab active" onclick="switchCompare('legacy')">Without MnemAI</button>
+                <button class="compare-tab" onclick="switchCompare('mnemai')">With MnemAI</button>
+              </div>
+              
+              <!-- Legacy State -->
+              <div id="compare-legacy" class="compare-content active">
+                <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">TICKET: PUMP-402 (CLOSED)</div>
+                <div style="background: var(--bg-base); padding: 20px; border-radius: 4px; border: 1px solid var(--border-subtle); margin-bottom: 24px;">
+                  <p style="color: var(--text-main); margin: 0; font-style: italic;">"Swapped inboard bearings. Good to go."</p>
+                </div>
+                <div style="color: #ef4444; font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                  Critical Context Lost
+                </div>
+                <ul style="color: var(--text-muted); font-size: 0.9rem; display: flex; flex-direction: column; gap: 8px; padding-left: 24px; list-style: circle;">
+                  <li>What did it sound like before failure?</li>
+                  <li>What was the exact vibration signature?</li>
+                  <li>Why these specific bearings over standard?</li>
+                </ul>
+              </div>
+
+              <!-- MnemAI State -->
+              <div id="compare-mnemai" class="compare-content">
+                <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-cyan); margin-bottom: 16px;">MNEMAI FAILURE FINGERPRINT: PUMP-402</div>
+                
+                <div style="background: var(--bg-base); padding: 16px; border-radius: 4px; border: 1px solid var(--border-subtle); margin-bottom: 16px;">
+                  <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Voice Transcript Captured</div>
+                  <p style="color: var(--text-main); margin: 0; font-size: 0.95rem;">"Getting a high-pitched squeal at load, vibration in zone 3. Swapped inboard bearings for high-temp variants."</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                  <div style="background: rgba(0, 210, 255, 0.05); border: 1px solid rgba(0, 210, 255, 0.2); padding: 12px; border-radius: 4px;">
+                    <div style="font-size: 0.7rem; color: var(--accent-cyan); text-transform: uppercase;">Extracted Symptom</div>
+                    <div style="color: var(--text-main); font-weight: 600; font-size: 0.9rem;">High-pitch squeal + Z3 Vib</div>
+                  </div>
+                  <div style="background: rgba(0, 210, 255, 0.05); border: 1px solid rgba(0, 210, 255, 0.2); padding: 12px; border-radius: 4px;">
+                    <div style="font-size: 0.7rem; color: var(--accent-cyan); text-transform: uppercase;">Structured Fix</div>
+                    <div style="color: var(--text-main); font-weight: 600; font-size: 0.9rem;">High-temp inboard bearings</div>
+                  </div>
+                </div>
+
+                <div style="color: var(--accent-cyan); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Searchable & Matchable Network-Wide
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 STEP LOOP -->
+    <section style="background: var(--bg-surface-elevated); border-top: 1px solid var(--border-strong); border-bottom: 1px solid var(--border-strong);">
+      <div class="bg-photo" style="opacity: 0.3;">
+        <img src="assets/photos/engineers-collaborating.jpg" alt="Engineers collaborating on machinery">
+      </div>
+      <div class="container">
+        <div class="section-header text-center reveal" style="max-width: 800px; margin: 0 auto 80px;">
+          <span class="section-tag">How It Works</span>
+          <h2>The Operational Memory Loop</h2>
+          <p class="text-lg text-muted">A continuously compounding cycle that turns unstructured field notes into structured network intelligence.</p>
+        </div>
+
+        <div style="max-width: 900px; margin: 0 auto; position: relative;" class="reveal delay-1">
+          <div class="loop-nav">
+            <div class="loop-nav-progress" id="loop-progress"></div>
+            <div class="loop-step active" onclick="activateLoop(1)">
+              1
+              <span class="loop-step-label">Capture</span>
+            </div>
+            <div class="loop-step" onclick="activateLoop(2)">
+              2
+              <span class="loop-step-label">Structure</span>
+            </div>
+            <div class="loop-step" onclick="activateLoop(3)">
+              3
+              <span class="loop-step-label">Match</span>
+            </div>
+            <div class="loop-step" onclick="activateLoop(4)">
+              4
+              <span class="loop-step-label">Compound</span>
+            </div>
+          </div>
+
+          <div style="background: var(--bg-base); border: 1px solid var(--border-strong); border-radius: 8px; padding: 48px; margin-top: 60px; min-height: 300px; position: relative;">
+            
+            <div id="loop-1" class="loop-panel active">
+              <div class="grid-2" style="gap: 40px; align-items: start;">
+                <div>
+                  <h3 style="color: var(--accent-cyan); font-size: 2rem;">Capture at the Edge</h3>
+                  <p class="text-muted text-lg">Technicians log low-friction voice notes, forms, or auto-suggested tags at the exact point of repair using a mobile app. No heavy typing required.</p>
+                  <ul style="margin-top: 24px; color: var(--text-main); display: flex; flex-direction: column; gap: 12px;">
+                    <li><strong style="color: var(--accent-cyan);">→</strong> Voice-to-text with industrial acoustic filtering</li>
+                    <li><strong style="color: var(--accent-cyan);">→</strong> Pulls sensor telemetry at the exact timestamp</li>
+                    <li><strong style="color: var(--accent-cyan);">→</strong> Works in offline/low-connectivity environments</li>
+                  </ul>
+                </div>
+                <div class="photo-card" style="height: 250px;">
+                  <img src="assets/photos/worker-inspecting-pipes.jpg" alt="Worker inspecting pipes">
+                </div>
+              </div>
+            </div>
+
+            <div id="loop-2" class="loop-panel">
+              <div class="grid-2" style="gap: 40px; align-items: start;">
+                <div>
+                  <h3 style="color: var(--accent-orange); font-size: 2rem;">Structure with AI</h3>
+                  <p class="text-muted text-lg">MnemAI uses specialized LLMs to extract a structured 'failure fingerprint' — Symptom → Cause → Fix — from messy, jargon-heavy technician language.</p>
+                  <ul style="margin-top: 24px; color: var(--text-main); display: flex; flex-direction: column; gap: 12px;">
+                    <li><strong style="color: var(--accent-orange);">→</strong> Normalizes slang across different plants</li>
+                    <li><strong style="color: var(--accent-orange);">→</strong> Eliminates tedious 15-field manual data entry</li>
+                    <li><strong style="color: var(--accent-orange);">→</strong> Maps to ISO 14224 maintenance standards automatically</li>
+                  </ul>
+                </div>
+                <div class="photo-card" style="height: 250px; background: var(--bg-surface);">
+                  <div style="padding: 24px; font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-orange);">
+                    <div>> Processing raw input...</div>
+                    <div style="margin-top: 16px; padding-left: 16px; border-left: 2px solid var(--accent-orange);">
+                      <div style="color: var(--text-main);">Entity: Pump 402</div>
+                      <div style="color: var(--text-main);">Symptom: High frequency vibration</div>
+                      <div style="color: var(--text-main);">Resolution: Impeller alignment</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="loop-3" class="loop-panel">
+              <div class="grid-2" style="gap: 40px; align-items: start;">
+                <div>
+                  <h3 style="color: var(--accent-cyan); font-size: 2rem;">Real-time Matching</h3>
+                  <p class="text-muted text-lg">When new anomalies occur, they are checked against the structured fingerprint library. MnemAI surfaces confidence-ranked diagnostic suggestions to the active technician.</p>
+                  <ul style="margin-top: 24px; color: var(--text-main); display: flex; flex-direction: column; gap: 12px;">
+                    <li><strong style="color: var(--accent-cyan);">→</strong> Reduces Mean Time To Diagnose (MTTD)</li>
+                    <li><strong style="color: var(--accent-cyan);">→</strong> Surfaces past solutions for identical equipment classes</li>
+                    <li><strong style="color: var(--accent-cyan);">→</strong> Up-skills junior technicians immediately</li>
+                  </ul>
+                </div>
+                <div class="photo-card" style="height: 250px;">
+                  <img src="assets/photos/control-room-screens.jpg" alt="Control room screens showing diagnostics">
+                </div>
+              </div>
+            </div>
+
+            <div id="loop-4" class="loop-panel">
+              <div class="grid-2" style="gap: 40px; align-items: start;">
+                <div>
+                  <h3 style="color: var(--accent-orange); font-size: 2rem;">Federated Compounding</h3>
+                  <p class="text-muted text-lg">Every resolved event makes the model smarter. Through Federated Learning, your entire plant network shares pattern intelligence without sharing raw data.</p>
+                  <ul style="margin-top: 24px; color: var(--text-main); display: flex; flex-direction: column; gap: 12px;">
+                    <li><strong style="color: var(--accent-orange);">→</strong> Plant A's fix becomes Plant B's suggestion</li>
+                    <li><strong style="color: var(--accent-orange);">→</strong> Raw proprietary data never leaves your environment</li>
+                    <li><strong style="color: var(--accent-orange);">→</strong> The knowledge base scales with your operations</li>
+                  </ul>
+                </div>
+                <div class="photo-card" style="height: 250px;">
+                  <img src="assets/photos/conveyor-belt-cans.jpg" alt="Conveyor belt showing scalable manufacturing">
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MEASURABLE IMPACT -->
+    <section>
+      <div class="container">
+        <div class="section-header text-center reveal" style="max-width: 800px; margin: 0 auto 64px;">
+          <span class="section-tag">Beta Goals</span>
+          <h2>Measurable Impact</h2>
+          <p class="text-muted">Targeting concrete operational improvements across the manufacturing floor.</p>
+        </div>
+        <div class="grid-3">
+          <div class="card reveal text-center">
+            <div class="stat-number" data-target="40">0</div>
+            <div style="font-size: 1.5rem; font-weight: 600; color: var(--accent-cyan); margin-bottom: 8px;">% Reduction</div>
+            <p class="stat-label">In Mean Time To Diagnose (MTTD) by surfacing past context.</p>
+          </div>
+          <div class="card reveal delay-1 text-center">
+            <div class="stat-number" data-target="95">0</div>
+            <div style="font-size: 1.5rem; font-weight: 600; color: var(--accent-orange); margin-bottom: 8px;">% Capture Rate</div>
+            <p class="stat-label">Of tacit diagnostic reasoning previously lost upon ticket closure.</p>
+          </div>
+          <div class="card reveal delay-2 text-center">
+            <div class="stat-number" data-target="3">0</div>
+            <div style="font-size: 1.5rem; font-weight: 600; color: var(--text-main); margin-bottom: 8px;">x Faster</div>
+            <p class="stat-label">Onboarding time for junior maintenance technicians.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TECHNOLOGY -->
+    <section style="background: var(--bg-surface);">
+      <div class="container">
+        <div class="grid-2" style="align-items: start;">
+          <div class="reveal">
+            <span class="section-tag">AI Technology & Infrastructure</span>
+            <h2>Built on enterprise AWS architecture.</h2>
+            <p class="text-muted text-lg mb-8">
+              MnemAI leverages state-of-the-art multimodal extraction and time-series similarity models. Our infrastructure is designed for high-throughput sensor environments and strict data isolation.
+            </p>
+            <div class="photo-card" style="height: 300px; margin-bottom: 24px;">
+              <img src="assets/photos/industrial-machinery-colorful.jpg" alt="Industrial machinery">
+            </div>
+          </div>
+          
+          <div class="reveal delay-1" style="display: flex; flex-direction: column; gap: 32px;">
+            <div style="padding-left: 24px; border-left: 2px solid var(--accent-cyan);">
+              <h3 style="font-size: 1.2rem; margin-bottom: 8px;">Amazon Bedrock & LLMs</h3>
+              <p class="text-muted" style="font-size: 0.95rem;">Powers our conversational interface and extraction engine. Transforms unstructured technician speech into rigid, searchable taxonomies (ISO 14224 compliant) instantly.</p>
+            </div>
+            <div style="padding-left: 24px; border-left: 2px solid var(--accent-orange);">
+              <h3 style="font-size: 1.2rem; margin-bottom: 8px;">Amazon SageMaker</h3>
+              <p class="text-muted" style="font-size: 0.95rem;">Runs our GPU-backed time-series anomaly detection. Matches current vibration, acoustic, and pressure signatures against historical 'failure fingerprints' to rank confidence.</p>
+            </div>
+            <div style="padding-left: 24px; border-left: 2px solid var(--border-strong);">
+              <h3 style="font-size: 1.2rem; margin-bottom: 8px;">IoT Core & Timestream</h3>
+              <p class="text-muted" style="font-size: 0.95rem;">Ingests and stores high-throughput sensor telemetry. Syncs in real-time with existing CMMS platforms (MaintainX, Fiix) via AWS Lambda and API Gateway.</p>
+            </div>
+            <div style="padding-left: 24px; border-left: 2px solid var(--border-strong);">
+              <h3 style="font-size: 1.2rem; margin-bottom: 8px;">S3 & Strict Isolation</h3>
+              <p class="text-muted" style="font-size: 0.95rem;">Client raw data is strictly isolated via IAM policies. The federated learning model shares only mathematical weights, never proprietary operational specifications.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY NOW -->
+    <section>
+      <div class="container">
+        <div class="grid-2" style="align-items: center;">
+          <div class="reveal">
+            <span class="section-tag">Why Now</span>
+            <h2>A converging crisis and capability.</h2>
+            <p class="text-muted text-lg mb-8">
+              The industrial world is facing a demographic cliff. As veteran technicians retire, they take decades of undocumented, highly specific operational memory with them. At the exact same moment, multimodal AI and time-series similarity models have reached the maturity required to understand messy, unstructured shop-floor speech and translate it into rigid data structures. What was impossible three years ago is now imperative.
+            </p>
+            <a href="why-now.html" class="btn btn-secondary">See why the timing matters &rarr;</a>
+          </div>
+          <div class="photo-card reveal delay-1" style="height: 350px;">
+            <img src="assets/photos/woman-engineer-repair.jpg" alt="Woman engineer repairing machinery">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MARKET OPPORTUNITY -->
+    <section style="background: var(--bg-surface-elevated); border-top: 1px solid var(--border-strong); border-bottom: 1px solid var(--border-strong);">
+      <div class="container">
+        <div class="section-header text-center reveal" style="max-width: 800px; margin: 0 auto 64px;">
+          <span class="section-tag">Market Strategy</span>
+          <h2>The Industrial Memory Market</h2>
+          <p class="text-muted">Targeting maintenance-heavy sectors where downtime costs millions per hour.</p>
+        </div>
+        <div class="grid-3">
+          <div class="card reveal">
+            <h3 style="color: var(--accent-cyan); font-size: 1.25rem;">Target Users</h3>
+            <p class="text-muted" style="font-size: 0.95rem;">Maintenance-heavy industrial plants across manufacturing, energy, and utilities. Environments where diagnostic reasoning—not just part replacement—is the bottleneck to uptime.</p>
+          </div>
+          <div class="card reveal delay-1">
+            <h3 style="color: var(--accent-orange); font-size: 1.25rem;">Go-to-Market</h3>
+            <p class="text-muted" style="font-size: 0.95rem;">Direct enterprise pilot sales to plant operations and reliability teams. Starting with 90-day design partnerships to validate failure-fingerprint extraction on real floor data.</p>
+          </div>
+          <div class="card reveal delay-2">
+            <h3 style="color: var(--text-main); font-size: 1.25rem;">Revenue Model</h3>
+            <p class="text-muted" style="font-size: 0.95rem;">Annual recurring revenue based on a per-seat technician subscription, plus scaled tiers based on asset-class complexity and API integration needs.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRACTION / MVP STATUS -->
+    <section>
+      <div class="container">
+        <div class="grid-2" style="align-items: center;">
+          <div class="photo-card reveal" style="height: 300px; position: relative;">
+            <img src="assets/photos/pipes-valves-frosted.jpg" alt="Frosted industrial pipes and valves">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 12, 16, 0.85); backdrop-filter: blur(8px); padding: 24px; border: 1px solid var(--accent-cyan); border-radius: 8px; text-align: center; box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);">
+              <div style="width: 12px; height: 12px; background: var(--accent-cyan); border-radius: 50%; margin: 0 auto 12px; animation: pulse-cyan 2s infinite;"></div>
+              <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-cyan);">SYSTEM STATUS</div>
+              <div style="font-weight: 600; color: var(--text-main); font-size: 1.1rem; margin-top: 4px; white-space: nowrap;">MVP IN DEVELOPMENT</div>
+            </div>
+          </div>
+          <div class="reveal delay-1">
+            <span class="section-tag">Current Status</span>
+            <h2>Enterprise Pilot Program Opening 2026.</h2>
+            <p class="text-muted text-lg mb-8">
+              We are currently in active development on our core extraction engine, fine-tuning our acoustic models against real-world shop floor noise profiles. We are selectively onboarding design partners to participate in closed beta testing starting next year.
+            </p>
+            <div style="display: flex; gap: 16px;">
+              <a href="#contact" class="btn btn-primary">Join the Waitlist</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROADMAP -->
+    <section style="background: var(--bg-surface); border-top: 1px solid var(--border-subtle);">
+      <div class="container">
+        <div class="section-header text-center reveal" style="max-width: 800px; margin: 0 auto 64px;">
+          <span class="section-tag">Product Roadmap</span>
+          <h2>The Path to Predictive Memory</h2>
+          <p class="text-muted">A phased approach to building a compounding industrial intelligence network.</p>
+        </div>
+        
+        <div style="max-width: 800px; margin: 0 auto; position: relative;">
+          <div style="position: absolute; top: 0; bottom: 0; left: 24px; width: 2px; background: var(--border-strong); z-index: 0;"></div>
+          
+          <div class="reveal" style="position: relative; z-index: 1; padding-left: 64px; margin-bottom: 48px;">
+            <div style="position: absolute; left: 15px; top: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-cyan); border: 4px solid var(--bg-surface); box-shadow: 0 0 0 2px var(--accent-cyan);"></div>
+            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-cyan); margin-bottom: 8px;">PHASE 0</div>
+            <h3 style="font-size: 1.4rem; margin-bottom: 8px;">Pilot Integration</h3>
+            <p class="text-muted">Deploy mobile voice-capture in isolated test environments. Validate symptom-to-fix extraction accuracy against noisy background audio.</p>
+          </div>
+
+          <div class="reveal delay-1" style="position: relative; z-index: 1; padding-left: 64px; margin-bottom: 48px;">
+            <div style="position: absolute; left: 17px; top: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--bg-base); border: 2px solid var(--text-muted);"></div>
+            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">PHASE 1</div>
+            <h3 style="font-size: 1.4rem; margin-bottom: 8px;">Failure-Fingerprint Library</h3>
+            <p class="text-muted">Establish the foundational taxonomy. Map unstructured technician notes to ISO 14224 standards and begin localized confidence ranking for suggested fixes.</p>
+          </div>
+
+          <div class="reveal delay-2" style="position: relative; z-index: 1; padding-left: 64px; margin-bottom: 48px;">
+            <div style="position: absolute; left: 17px; top: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--bg-base); border: 2px solid var(--text-muted);"></div>
+            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">PHASE 2</div>
+            <h3 style="font-size: 1.4rem; margin-bottom: 8px;">Federated Cross-Plant Matching</h3>
+            <p class="text-muted">Enable encrypted weight sharing. Allow Plant A's resolved anomalies to instantly inform diagnostic suggestions at Plant B without exposing proprietary operational data.</p>
+          </div>
+
+          <div class="reveal delay-3" style="position: relative; z-index: 1; padding-left: 64px; margin-bottom: 48px;">
+            <div style="position: absolute; left: 17px; top: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--bg-base); border: 2px solid var(--text-muted);"></div>
+            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">PHASE 3</div>
+            <h3 style="font-size: 1.4rem; margin-bottom: 8px;">Predictive Alerts</h3>
+            <p class="text-muted">Integrate continuous real-time telemetry from AWS IoT Core. Surface proactive alerts based on historical failure fingerprints before a hard fault occurs.</p>
+          </div>
+          
+          <div class="reveal delay-3" style="position: relative; z-index: 1; padding-left: 64px;">
+            <div style="position: absolute; left: 17px; top: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--bg-base); border: 2px solid var(--text-muted);"></div>
+            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">PHASE 4</div>
+            <h3 style="font-size: 1.4rem; margin-bottom: 8px;">Multi-Industry Expansion</h3>
+            <p class="text-muted">Generalize the matching engine beyond primary manufacturing into energy grids, maritime operations, and broad heavy infrastructure.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEAM TEASER -->
+    <section>
+      <div class="bg-photo" style="opacity: 0.15;">
+        <img src="assets/photos/engineer-inspecting-machinery.jpg" alt="Engineer inspecting machinery">
+      </div>
+      <div class="container">
+        <div class="section-header text-center reveal" style="max-width: 800px; margin: 0 auto 64px;">
+          <span class="section-tag">Leadership</span>
+          <h2>Built by industrial veterans.</h2>
+          <p class="text-muted">We combine deep operations experience with world-class machine learning infrastructure.</p>
+        </div>
+        
+        <div class="grid-2" style="max-width: 900px; margin: 0 auto 48px;">
+          <div class="card reveal text-center" style="background: var(--bg-surface-elevated);">
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--bg-base); border: 2px solid rgba(255, 90, 0, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 24px; color: var(--accent-orange);">SJ</div>
+            <h3 style="margin-bottom: 4px; font-size: 1.3rem;">Sarah Jenkins</h3>
+            <div class="mono" style="color: var(--accent-orange); font-size: 0.85rem; margin-bottom: 16px;">CEO & CO-FOUNDER</div>
+            <p class="text-muted" style="font-size: 0.95rem;">Former VP of Operations at Magna International. Built and scaled predictive maintenance programs across 40+ automotive plants.</p>
+          </div>
+          <div class="card reveal delay-1 text-center" style="background: var(--bg-surface-elevated);">
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--bg-base); border: 2px solid rgba(0, 210, 255, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 24px; color: var(--accent-cyan);">AC</div>
+            <h3 style="margin-bottom: 4px; font-size: 1.3rem;">Dr. Alex Chen</h3>
+            <div class="mono" style="color: var(--accent-cyan); font-size: 0.85rem; margin-bottom: 16px;">CTO & CO-FOUNDER</div>
+            <p class="text-muted" style="font-size: 0.95rem;">Ex-AWS AI infra engineer. Specialized in time-series anomaly detection and federated learning architectures.</p>
+          </div>
+        </div>
+        
+        <div class="text-center reveal delay-2">
+          <a href="team.html" class="btn btn-secondary">Meet the full team &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" style="border-top: 1px solid var(--border-subtle);">
+      <div class="container">
+        <div class="grid-2 align-center">
+          <div class="reveal">
+            <span class="section-tag">Pilot Program</span>
+            <h2 style="margin-bottom: 24px;">Secure your plant's operational memory.</h2>
+            <p class="text-muted text-lg mb-8">We are currently onboarding 2-3 enterprise design partners for our 90-day pilot. Fill out the form or reach us directly at <a href="mailto:hello@mnemai.io" style="color: var(--accent-cyan); text-decoration: underline;">hello@mnemai.io</a>.</p>
+          </div>
+          <div class="card reveal delay-1">
+            <form id="contactForm" onsubmit="handleContact(event)">
+              <div style="margin-bottom: 16px;">
+                <label style="display:block; margin-bottom:8px; font-size:0.9rem; color:var(--text-muted);">Name</label>
+                <input type="text" required style="width:100%; padding:12px; background:var(--bg-base); border:1px solid var(--border-strong); border-radius:4px; color:white; font-family:inherit;">
+              </div>
+              <div style="margin-bottom: 16px;">
+                <label style="display:block; margin-bottom:8px; font-size:0.9rem; color:var(--text-muted);">Work Email</label>
+                <input type="email" required style="width:100%; padding:12px; background:var(--bg-base); border:1px solid var(--border-strong); border-radius:4px; color:white; font-family:inherit;">
+              </div>
+              <div style="margin-bottom: 24px;">
+                <label style="display:block; margin-bottom:8px; font-size:0.9rem; color:var(--text-muted);">Company / Plant Size</label>
+                <input type="text" style="width:100%; padding:12px; background:var(--bg-base); border:1px solid var(--border-strong); border-radius:4px; color:white; font-family:inherit;">
+              </div>
+              <button type="submit" class="btn btn-primary" style="width:100%;">Start Free Trial</button>
+            </form>
+            <div id="contactSuccess" style="display:none; text-align:center; padding: 32px 0;">
+              <svg style="width:48px; height:48px; color:var(--accent-cyan); margin:0 auto 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <h3 style="margin-bottom:8px;">Request Received</h3>
+              <p class="text-muted">A founding engineer will reach out within 24 hours to schedule a technical deep dive.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col" style="grid-column: span 1;">
+          <a href="index.html" class="logo" style="margin-bottom:16px;">
+            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h18"/><path d="M4 16a8 6 0 0 1 16 0"/><path d="M9 16v-3a3 3 0 0 1 6 0v3"/><path d="M12 5v2"/></svg>
+            MnemAI
+          </a>
+          <p class="text-muted" style="font-size: 0.9rem;">The failure knowledge that used to walk out the door now stays — and gets smarter.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul class="footer-links">
+            <li><a href="how-it-works.html">How it Works</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul class="footer-links">
+            <li><a href="team.html">Team</a></li>
+            <li><a href="mailto:hello@mnemai.io">hello@mnemai.io</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <ul class="footer-links">
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Use</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MnemAI, Inc. All rights reserved.</p>
+        <p style="font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-cyan);">Built for the industrial frontier.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll Progress
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('scroll-progress').style.width = scrolled + '%';
+    });
+
+    // Intersection Observer for Reveals and Counters
+    const observerOptions = { root: null, rootMargin: '0px', threshold: 0.15 };
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          
+          // Trigger Counters if present
+          if (entry.target.classList.contains('card')) {
+            const numEl = entry.target.querySelector('.stat-number');
+            if (numEl && !numEl.dataset.counted) {
+              numEl.dataset.counted = "true";
+              const target = parseInt(numEl.getAttribute('data-target'));
+              animateValue(numEl, 0, target, 1500);
+            }
+          }
+          obs.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Number Animation function
+    function animateValue(obj, start, end, duration) {
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        obj.innerHTML = Math.floor(progress * (end - start) + start);
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        }
+      };
+      window.requestAnimationFrame(step);
+    }
+
+    // Comparison Toggle
+    function switchCompare(state) {
+      document.querySelectorAll('.compare-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.compare-content').forEach(c => c.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById('compare-' + state).classList.add('active');
+    }
+
+    // 4-Step Loop
+    let currentLoop = 1;
+    let loopInterval;
+    
+    function activateLoop(step) {
+      clearInterval(loopInterval);
+      setLoopStep(step);
+    }
+
+    function setLoopStep(step) {
+      currentLoop = step;
+      document.querySelectorAll('.loop-step').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.loop-panel').forEach(el => el.classList.remove('active'));
+      
+      document.querySelector(`.loop-step:nth-child(${step + 1})`).classList.add('active');
+      document.getElementById('loop-' + step).classList.add('active');
+      
+      const progress = ((step - 1) / 3) * 100;
+      document.getElementById('loop-progress').style.width = progress + '%';
+    }
+
+    // Auto-advance loop when it comes into view
+    const loopObserver = new IntersectionObserver((entries) => {
+      if(entries[0].isIntersecting) {
+        loopInterval = setInterval(() => {
+          let next = currentLoop + 1;
+          if (next > 4) next = 1;
+          setLoopStep(next);
+        }, 4000);
+        loopObserver.disconnect();
+      }
+    }, { threshold: 0.5 });
+    
+    loopObserver.observe(document.querySelector('.loop-nav'));
+
+    // Form
+    function handleContact(e) {
+      e.preventDefault();
+      document.getElementById('contactForm').style.display = 'none';
+      document.getElementById('contactSuccess').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
