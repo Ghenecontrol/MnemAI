@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MnemAI | Pricing</title>
+  <style>
+    :root {
+      --bg-base: #0a0c10;
+      --bg-surface: #11141a;
+      --bg-surface-elevated: #1a1e27;
+      --border-subtle: #222733;
+      --border-strong: #31384a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-orange: #ff5a00;
+      --accent-orange-hover: #e04f00;
+      --accent-cyan: #00d2ff;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-sans); background-color: var(--bg-base); color: var(--text-main); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    button { font-family: inherit; }
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+    
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; background: var(--accent-cyan);
+      width: 0%; z-index: 1000; transition: width 0.1s ease-out;
+    }
+
+    header { position: sticky; top: 0; z-index: 100; background: rgba(10, 12, 16, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .logo { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+    .logo-icon { width: 24px; height: 24px; }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-link { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    .nav-link:hover, .nav-link.active { color: var(--text-main); }
+    
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; font-size: 0.9rem; font-weight: 600; border-radius: 4px; transition: all 0.2s; cursor: pointer; border: none; }
+    .btn-primary { background: var(--accent-orange); color: #fff; }
+    .btn-primary:hover { background: var(--accent-orange-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255, 90, 0, 0.2); }
+    .btn-secondary { background: transparent; color: var(--text-main); border: 1px solid var(--border-strong); }
+    .btn-secondary:hover { border-color: var(--text-muted); background: var(--bg-surface-elevated); transform: translateY(-1px); }
+    
+    footer { border-top: 1px solid var(--border-subtle); padding: 64px 0 32px; background: var(--bg-surface); }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-col h4 { font-size: 0.9rem; color: var(--text-main); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .footer-links li { margin-bottom: 12px; }
+    .footer-links a { color: var(--text-muted); font-size: 0.9rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent-cyan); }
+    .footer-bottom { border-top: 1px solid var(--border-subtle); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.85rem; }
+    
+    section { padding: 120px 0; }
+    .section-header { text-align: center; margin-bottom: 64px; max-width: 800px; margin-inline: auto; }
+    .section-tag { color: var(--accent-cyan); font-family: var(--font-mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; display: block; }
+    
+    h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; }
+    h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 24px; }
+    p { margin-bottom: 16px; }
+    
+    .text-muted { color: var(--text-muted); }
+    .text-lg { font-size: 1.125rem; }
+    .mono { font-family: var(--font-mono); }
+    
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 40px; transition: transform 0.3s, border-color 0.3s; }
+    .card:hover { border-color: var(--border-strong); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.2); }
+    
+    /* Range Sliders */
+    input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin: 16px 0; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: var(--accent-cyan); cursor: pointer; margin-top: -10px; box-shadow: 0 0 15px rgba(0, 210, 255, 0.4); transition: transform 0.1s; }
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+    input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--border-strong); border-radius: 2px; }
+    
+    .price-value { transition: color 0.3s; }
+    .price-value.updating { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+
+    /* Comparison Bar */
+    .cost-bar-container { width: 100%; height: 8px; background: var(--border-strong); border-radius: 4px; margin-top: 16px; overflow: hidden; display: flex; }
+    .cost-bar-base { height: 100%; background: var(--text-muted); transition: width 0.3s ease; }
+    .cost-bar-growth { height: 100%; background: var(--accent-orange); transition: width 0.3s ease; }
+    
+    .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal.in-view { opacity: 1; transform: translateY(0); }
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .grid-3, .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      section { padding: 80px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="scroll-progress"></div>
+
+  <header>
+    <div class="container nav-inner">
+      <a href="index.html" class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h18"/><path d="M4 16a8 6 0 0 1 16 0"/><path d="M9 16v-3a3 3 0 0 1 6 0v3"/><path d="M12 5v2"/></svg>
+        MnemAI
+      </a>
+      <nav class="nav-links">
+        <a href="how-it-works.html" class="nav-link">How it Works</a>
+        <a href="pricing.html" class="nav-link active">Pricing</a>
+        <a href="index.html#contact" class="nav-link">Contact</a>
+        <a href="index.html#contact" class="btn btn-primary">Start Free Trial</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-tag">Illustrative Pricing</span>
+          <h2>Designed for scale.</h2>
+          <p class="text-muted text-lg">Predictable pricing finalized during pilot scoping. No surprise overages.</p>
+        </div>
+        
+        <div class="reveal" style="max-width: 700px; margin: 0 auto 80px; background: var(--bg-surface-elevated); padding: 48px; border-radius: 8px; border: 1px solid var(--border-strong); box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+          <h3 style="margin-bottom: 32px; font-size: 1.2rem; text-align: center; color: var(--text-main);">Calculate Estimated Monthly Cost (Growth Tier)</h3>
+          
+          <div style="margin-bottom: 40px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center;">
+              <label style="color: var(--text-muted); font-weight: 500;">Technician Seats</label>
+              <span class="mono" id="seats-val" style="color: var(--accent-cyan); font-size: 1.2rem; font-weight: bold;">25</span>
+            </div>
+            <input type="range" id="seats" min="5" max="200" value="25" step="5" oninput="updatePricing()">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+              <span>5</span><span>200+</span>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 40px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center;">
+              <label style="color: var(--text-muted); font-weight: 500;">Monitored Asset Classes</label>
+              <span class="mono" id="assets-val" style="color: var(--accent-cyan); font-size: 1.2rem; font-weight: bold;">10</span>
+            </div>
+            <input type="range" id="assets" min="1" max="50" value="10" step="1" oninput="updatePricing()">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+              <span>1</span><span>50+</span>
+            </div>
+          </div>
+
+          <div style="border-top: 1px dashed var(--border-strong); padding-top: 32px; text-align: center;">
+             <div class="price-value mono" id="calc-total" style="font-size: 3rem; font-weight: 700; color: var(--accent-orange);">$3,750</div>
+             <div style="color: var(--text-muted); font-size: 0.9rem;">Estimated Monthly Cost</div>
+             
+             <div class="cost-bar-container">
+               <div class="cost-bar-base" id="bar-base" style="width: 13%;"></div>
+               <div class="cost-bar-growth" id="bar-growth" style="width: 87%;"></div>
+             </div>
+             <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;">
+               <span>Base ($500)</span>
+               <span>Usage Scaling</span>
+             </div>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="card reveal" style="display: flex; flex-direction: column;">
+            <h3 style="margin-bottom: 8px;">Pilot</h3>
+            <p class="text-muted mb-8" style="font-size: 0.9rem;">90-day design partner program.</p>
+            <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 24px; color: var(--text-main);">$1,500<span style="font-size: 1rem; color: var(--text-muted); font-weight: 400;">/mo flat</span></div>
+            <ul style="margin-bottom: 32px; flex-grow: 1; color: var(--text-muted); font-size: 0.95rem; display: flex; flex-direction: column; gap: 16px;">
+              <li style="display: flex; gap: 12px;"><svg style="flex-shrink:0; color:var(--accent-orange); width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Single-plant fingerprinting</li>
+              <li style="display: flex; gap: 12px;"><svg style="flex-shrink:0; color:var(--accent-orange); width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Core capture pipeline setup</li>
+              <li style="display: flex; gap: 12px;"><svg style="flex-shrink:0; color:var(--accent-orange); width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Dedicated engineering Slack</li>
+              <li style="display: flex; gap: 12px;"><svg style="flex-shrink:0; color:var(--accent-orange); width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Onsite onboarding</li>
+            </ul>
+            <a href="index.html#contact" class="btn btn-secondary" style="width: 100%;">Apply for Pilot</a>
+          </div>
+          
+          <div class="card reveal delay-1" style="border-color: var(--accent-orange); position: relative; display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(255, 90, 0, 0.15); transform: translateY(-8px);">
+            <div style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--accent-orange); color: white; font-size: 0.75rem; font-weight: bold; padding: 6px 16px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Most Common</div>
+            <h3 style="margin-bottom: 8px;">Growth</h3>
+            <p class="text-muted mb-8" style="font-size: 0.9rem;">For multi-plant manufacturers.</p>
+            <div class="price-value" style="font-size: 2.5rem; font-weight: 700; margin-bottom: 24px; color: var(--accent-orange);" id="price-growth">$3,750<span style="font-size: 1rem; color: var(--text-muted); font-weight: 400;">/mo est.</span></div>
+            <ul style="margin-bottom: 32px; flex-grow: 1; color: var(--text-main); font-size: 0.95rem; display: flex; flex-direction: column; gap: 16px;">
+              <li style="display: flex; gap: 12px;"><svg style="flex-shrink:0; color:var(--accent-cyan); width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Cross-plant network access</li>
+              <li style="display: flex; gap: 12px;"><svg style="flex-shrink:0; color:var(--accent-cyan); width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Full CMMS integration sync</li>
+              <li style="display: flex; gap: 12px;"><svg style="flex-shrink:0; color:var(--accent-cyan); width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Conversational AI interface</li>
+              <li style="display: flex; gap: 12px;"><svg style="flex-shrink:0; color:var(--accent-cyan); width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Real-time anomaly matching</li>
+            </ul>
+            <a href="index.html#contact" class="btn btn-primary" style="width: 100%;">Contact Sales</a>
+          </div>
+
+          <div class="card reveal delay-2" style="display: flex; flex-direction: column;">
+            <h3 style="margin-bottom: 8px;">Enterprise</h3>
+            <p class="text-muted mb-8" style="font-size: 0.9rem;">Full corporate deployment.</p>
+            <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 24px; color: var(--text-main);">Custom</div>
+            <ul style="margin-bottom: 32px; flex-grow: 1; color: var(--text-muted); font-size: 0.95rem; display: flex; flex-direction: column; gap: 16px;">
+              <li style="display: flex; gap: 12px;"><svg style="flex-shrink:0; color:var(--text-muted); width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Cross-client network sharing</li>
+              <li style="display: flex; gap: 12px;"><svg style="flex-shrink:0; color:var(--text-muted); width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Custom model fine-tuning</li>
+              <li style="display: flex; gap: 12px;"><svg style="flex-shrink:0; color:var(--text-muted); width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> VPC / On-prem edge options</li>
+              <li style="display: flex; gap: 12px;"><svg style="flex-shrink:0; color:var(--text-muted); width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Unlimited plants & seats</li>
+            </ul>
+            <a href="index.html#contact" class="btn btn-secondary" style="width: 100%;">Contact Sales</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col" style="grid-column: span 1;">
+          <a href="index.html" class="logo" style="margin-bottom:16px;">
+            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h18"/><path d="M4 16a8 6 0 0 1 16 0"/><path d="M9 16v-3a3 3 0 0 1 6 0v3"/><path d="M12 5v2"/></svg>
+            MnemAI
+          </a>
+          <p class="text-muted" style="font-size: 0.9rem;">The failure knowledge that used to walk out the door now stays — and gets smarter.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul class="footer-links">
+            <li><a href="how-it-works.html">How it Works</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="why-now.html">Why Now</a></li>
+            <li><a href="architecture.html">Architecture</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul class="footer-links">
+            <li><a href="team.html">Team</a></li>
+            <li><a href="mailto:hello@mnemai.io">hello@mnemai.io</a></li>
+            <li><a href="tel:+2347082873898">07082873898</a></li>
+            <li style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;">No 12b Site Road,<br>Independence Layout</li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <ul class="footer-links">
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Use</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MnemAI, Inc. All rights reserved.</p>
+        <p style="font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-cyan);">Built for the industrial frontier.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll Progress
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('scroll-progress').style.width = scrolled + '%';
+    });
+
+    // Intersection Observer
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Pricing Logic
+    const growthBase = 500;
+    const growthPerSeat = 50;
+    const growthPerAsset = 200;
+
+    let updateTimeout;
+
+    function updatePricing() {
+      const seats = parseInt(document.getElementById('seats').value);
+      const assets = parseInt(document.getElementById('assets').value);
+      
+      document.getElementById('seats-val').innerText = seats;
+      document.getElementById('assets-val').innerText = assets;
+
+      const growthPrice = growthBase + (seats * growthPerSeat) + (assets * growthPerAsset);
+      const formatted = "$" + growthPrice.toLocaleString();
+      
+      // Update UI with flash effect
+      const priceGrowthEl = document.getElementById('price-growth');
+      const calcTotalEl = document.getElementById('calc-total');
+      
+      priceGrowthEl.innerHTML = formatted + '<span style="font-size: 1rem; color: var(--text-muted); font-weight: 400;">/mo est.</span>';
+      calcTotalEl.innerText = formatted;
+      
+      calcTotalEl.classList.add('updating');
+      clearTimeout(updateTimeout);
+      updateTimeout = setTimeout(() => calcTotalEl.classList.remove('updating'), 150);
+
+      // Update comparison bar
+      const maxPossible = growthBase + (200 * growthPerSeat) + (50 * growthPerAsset);
+      const basePct = (growthBase / growthPrice) * 100;
+      const growthPct = 100 - basePct;
+      
+      document.getElementById('bar-base').style.width = basePct + '%';
+      document.getElementById('bar-growth').style.width = growthPct + '%';
+    }
+  </script>
+</body>
+</html>
