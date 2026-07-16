@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MnemAI | Privacy Policy</title>
+  <style>
+    :root {
+      --bg-base: #0a0c10;
+      --bg-surface: #11141a;
+      --bg-surface-elevated: #1a1e27;
+      --border-subtle: #222733;
+      --border-strong: #31384a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-orange: #ff5a00;
+      --accent-orange-hover: #e04f00;
+      --accent-cyan: #00d2ff;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-sans); background-color: var(--bg-base); color: var(--text-main); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+    
+    #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent-cyan); width: 0%; z-index: 1000; transition: width 0.1s ease-out; }
+
+    header { position: sticky; top: 0; z-index: 100; background: rgba(10, 12, 16, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .logo { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+    .logo-icon { width: 24px; height: 24px; }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-link { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    .nav-link:hover, .nav-link.active { color: var(--text-main); }
+    
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; font-size: 0.9rem; font-weight: 600; border-radius: 4px; transition: all 0.2s; border: none; cursor: pointer; }
+    .btn-primary { background: var(--accent-orange); color: #fff; }
+    .btn-primary:hover { background: var(--accent-orange-hover); transform: translateY(-1px); }
+    
+    footer { border-top: 1px solid var(--border-subtle); padding: 64px 0 32px; background: var(--bg-surface); }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-col h4 { font-size: 0.9rem; color: var(--text-main); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .footer-links li { margin-bottom: 12px; }
+    .footer-links a { color: var(--text-muted); font-size: 0.9rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent-cyan); }
+    .footer-bottom { border-top: 1px solid var(--border-subtle); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.85rem; }
+    
+    h1 { font-size: 3rem; margin-bottom: 16px; font-weight: 600; letter-spacing: -0.02em; }
+    
+    /* Legal Layout */
+    .legal-layout { display: flex; gap: 64px; align-items: flex-start; padding: 96px 24px; }
+    .legal-sidebar { position: sticky; top: 120px; width: 250px; flex-shrink: 0; }
+    .legal-content { flex-grow: 1; max-width: 800px; }
+    
+    .legal-nav-link { display: block; padding: 8px 16px; color: var(--text-muted); font-size: 0.9rem; transition: all 0.2s; border-left: 2px solid var(--border-subtle); margin-left: -2px; }
+    .legal-nav-link:hover { color: var(--accent-cyan); }
+    .legal-nav-link.active { color: var(--accent-cyan); border-left-color: var(--accent-cyan); background: rgba(0, 210, 255, 0.05); font-weight: 600; }
+    
+    .legal-section { margin-bottom: 48px; scroll-margin-top: 100px; }
+    .legal-content h2 { font-size: 1.5rem; font-weight: 600; border-bottom: 1px solid var(--border-subtle); padding-bottom: 16px; margin-bottom: 24px; }
+    .legal-content p { margin-bottom: 16px; color: var(--text-muted); line-height: 1.7; }
+    .legal-content ul { list-style: disc; padding-left: 24px; margin-bottom: 24px; color: var(--text-muted); line-height: 1.7; }
+    
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      .legal-layout { flex-direction: column; gap: 48px; padding: 48px 24px; }
+      .legal-sidebar { position: static; width: 100%; border-bottom: 1px solid var(--border-subtle); padding-bottom: 24px; }
+    }
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body>
+  <div id="scroll-progress"></div>
+
+  <header>
+    <div class="container nav-inner">
+      <a href="index.html" class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h18"/><path d="M4 16a8 6 0 0 1 16 0"/><path d="M9 16v-3a3 3 0 0 1 6 0v3"/><path d="M12 5v2"/></svg>
+        MnemAI
+      </a>
+      <nav class="nav-links">
+        <a href="how-it-works.html" class="nav-link">How it Works</a>
+        <a href="pricing.html" class="nav-link">Pricing</a>
+        <a href="index.html#contact" class="nav-link">Contact</a>
+        <a href="index.html#contact" class="btn btn-primary">Start Free Trial</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="legal-layout container">
+      <aside class="legal-sidebar">
+        <nav>
+          <ul style="border-left: 2px solid var(--border-subtle);">
+            <li><a href="#data-collection" class="legal-nav-link active">1. Data Collection</a></li>
+            <li><a href="#ai-processing" class="legal-nav-link">2. AI & Federated Processing</a></li>
+            <li><a href="#data-retention" class="legal-nav-link">3. Data Retention</a></li>
+            <li><a href="#security" class="legal-nav-link">4. Security Practices</a></li>
+            <li><a href="#subprocessors" class="legal-nav-link">5. Third-Party Subprocessors</a></li>
+            <li><a href="#user-rights" class="legal-nav-link">6. User Rights</a></li>
+            <li><a href="#contact" class="legal-nav-link">7. Contact Information</a></li>
+          </ul>
+        </nav>
+      </aside>
+      
+      <div class="legal-content">
+        <h1>Privacy Policy</h1>
+        <p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 48px;">Effective Date: July 13, 2026</p>
+        
+        <p>This Privacy Policy describes how MnemAI, Inc. ("MnemAI", "we", "us", or "our") collects, uses, and protects your data when you use our website, services, and industrial AI application (collectively, the "Service").</p>
+
+        <div id="data-collection" class="legal-section">
+          <h2>1. Data Collection</h2>
+          <p>We collect information in two distinct contexts: marketing site interaction and integrated platform usage.</p>
+          <p><strong>Marketing Site Data:</strong> When you request a demo or contact us, we collect your name, work email, company name, and any contextual message you provide. This is used solely to respond to your inquiry and scope potential pilot programs.</p>
+          <p><strong>Platform & Operational Data:</strong> Once integrated into your plant environment, MnemAI collects technician-submitted maintenance notes (voice/text), work order context from your CMMS, and associated time-series sensor data (vibration, acoustics, temperature) from monitored asset classes.</p>
+        </div>
+
+        <div id="ai-processing" class="legal-section">
+          <h2>2. AI & Federated Processing Architecture</h2>
+          <p>Our fundamental architecture is designed to protect your operational IP. We utilize a <strong>Federated Learning</strong> model, which contractually guarantees:</p>
+          <ul>
+            <li><strong>Local Isolation:</strong> Your raw operational data, technician notes, and sensor telemetry never leave your isolated AWS environment and are never commingled with other clients' raw data.</li>
+            <li><strong>Anonymized Pattern Extraction:</strong> Our models process your data locally to extract mathematical "failure fingerprints".</li>
+            <li><strong>Pattern-Level Sharing:</strong> Only aggregated, heavily anonymized model weight updates—devoid of proprietary metadata, employee names, or specific machine serials—are transmitted to the global MnemAI network to improve matching confidence for all clients.</li>
+          </ul>
+        </div>
+
+        <div id="data-retention" class="legal-section">
+          <h2>3. Data Retention</h2>
+          <p>We retain your marketing contact information until you request deletion. Operational platform data is retained for the duration of our contract to maintain your local fingerprint library. Upon termination of service, all raw operational data and locally isolated models are securely destroyed within 30 days. However, the abstract pattern weights already contributed to the global federated model cannot be untangled or reversed into raw data, and thus remain part of the global model.</p>
+        </div>
+
+        <div id="security" class="legal-section">
+          <h2>4. Security Practices</h2>
+          <p>MnemAI implements strict, enterprise-grade security protocols, including:</p>
+          <ul>
+            <li>Encryption in transit (TLS 1.3) and at rest (AES-256).</li>
+            <li>Strict IAM role isolation utilizing AWS S3 and KMS for per-client data boundaries.</li>
+            <li>Regular third-party penetration testing and compliance auditing tailored to industrial software standards.</li>
+          </ul>
+        </div>
+
+        <div id="subprocessors" class="legal-section">
+          <h2>5. Third-Party Subprocessors</h2>
+          <p>To provide our Service, we utilize trusted cloud infrastructure providers. Our primary subprocessor is <strong>Amazon Web Services (AWS)</strong>, providing IoT Core, Kinesis, Bedrock, SageMaker, and secure storage infrastructure. MnemAI does not sell your data to any third party.</p>
+        </div>
+
+        <div id="user-rights" class="legal-section">
+          <h2>6. User Rights</h2>
+          <p>Depending on your jurisdiction, you or your employer may have rights to access, correct, or delete personal data stored within our systems. Since MnemAI is a B2B service, requests regarding technician data should be routed through your Plant Manager or designated account administrator.</p>
+        </div>
+
+        <div id="contact" class="legal-section">
+          <h2>7. Contact Information</h2>
+          <p>For any questions or concerns regarding this Privacy Policy or our data practices, please contact us at:</p>
+          <p><a href="mailto:hello@mnemai.io" style="color: var(--accent-cyan); text-decoration: underline;">hello@mnemai.io</a></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col" style="grid-column: span 1;">
+          <a href="index.html" class="logo" style="margin-bottom:16px;">
+            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h18"/><path d="M4 16a8 6 0 0 1 16 0"/><path d="M9 16v-3a3 3 0 0 1 6 0v3"/><path d="M12 5v2"/></svg>
+            MnemAI
+          </a>
+          <p class="text-muted" style="font-size: 0.9rem;">The failure knowledge that used to walk out the door now stays — and gets smarter.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul class="footer-links">
+            <li><a href="how-it-works.html">How it Works</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="why-now.html">Why Now</a></li>
+            <li><a href="architecture.html">Architecture</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul class="footer-links">
+            <li><a href="team.html">Team</a></li>
+            <li><a href="mailto:hello@mnemai.io">hello@mnemai.io</a></li>
+            <li><a href="tel:+2347082873898">07082873898</a></li>
+            <li style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;">No 12b Site Road,<br>Independence Layout</li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <ul class="footer-links">
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Use</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MnemAI, Inc. All rights reserved.</p>
+        <p style="font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-cyan);">Built for the industrial frontier.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll Progress
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('scroll-progress').style.width = scrolled + '%';
+    });
+
+    // ScrollSpy
+    const sections = document.querySelectorAll('.legal-section');
+    const navLinks = document.querySelectorAll('.legal-nav-link');
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -60% 0px',
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + entry.target.id) {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => observer.observe(section));
+  </script>
+</body>
+</html>
